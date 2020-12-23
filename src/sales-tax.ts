@@ -1,9 +1,13 @@
-import chalk from 'chalk';
-import * as inquirer from 'inquirer';
-import * as prompts from './prompts';
 import * as calculate from './calculate';
 import * as parse from './parse';
-import { Item, ItemType, TaxAndTotal } from './types';
+import { Item, ItemType, TaxAndTotal, SalesTaxResponse } from './types';
+
+import { json } from 'body-parser';
+import express from 'express';
+
+const app = express();
+app.use(json());
+const port = 3000;
 /*
     RULES:
     - Books, Food, Medicine: no sales tax
@@ -12,41 +16,32 @@ import { Item, ItemType, TaxAndTotal } from './types';
     - for sales tax round up to nearest $0.05
 
 */
-
-let promptItemLine = (itemList: Item[]) => {
-    inquirer.prompt(prompts.enterItemPrompt).then(enterItem => {
-        if (enterItem.another) {
-            inquirer.prompt(prompts.itemPrompt).then((newItem: Item) => {
-                newItem = calculate.calculateSalesTax(newItem);
-                itemList.push(newItem);
-                promptItemLine(itemList);
-            });
-        } else {
-            calculateTotal(itemList);
-        }
-    });
-};
-
-let calculateTotal = (items: Item[]) => {
-    let total: TaxAndTotal = calculate.getTotal(items);
-    inquirer.prompt(prompts.receiptPrompt).then(answer => {
-        console.log('Calculating Total...');
-        if (answer.printreceipt) {
-            parse.formatReceipt(items);
-        }
-        parse.formatTotal(total);
-        console.log('Thank You for using the Sales Tax Calculator');
-    })
-};
-
-console.log('Welcome to the Sales Tax Calculator');
-promptItemLine([]);
-/*
-inquirer.prompt(prompts.first).then(answers => {
-    if (answers.options === 'Enter Filepath') {
-        inquirer.prompt(prompts.filePrompt).then(fileAns =>{
-            console.log(fileAns);
+app.post('/salestax', (req, res) => {
+    const body = req.body;
+    if (!body) {
+        res.status(400);
+        res.send('POST Body Required');
+    } else {
+        const itemsPreTax: Item[] = body.items;
+        let itemsPostTax: Item[] = [];
+        itemsPreTax.forEach((item: Item) => {
+            itemsPostTax.push(calculate.calculateSalesTax(item));
         });
+        let taxAndTotal = calculate.getTotal(itemsPostTax);
+        let resBody: SalesTaxResponse = {
+            taxAndTotal: taxAndTotal
+        };
+
+        if (body.print) {
+            let receiptLines = parse.formatReceipt(itemsPostTax);
+            receiptLines = receiptLines.concat(parse.formatTotal(taxAndTotal));
+            resBody.displayReciept = receiptLines;
+        }
+        res.status(200);
+        res.send(resBody);
     }
 });
-*/
+
+app.listen(port, () => {
+    console.log('Listening at localhost:3000');
+});

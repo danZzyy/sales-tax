@@ -18,3 +18,8 @@ export interface TaxAndTotal {
     tax: number;
     total: number;
 }
+
+export interface SalesTaxResponse {
+    taxAndTotal: TaxAndTotal;
+    displayReciept?: string[];
+}
