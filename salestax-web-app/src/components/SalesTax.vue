@@ -13,14 +13,17 @@
       <div class="new-item-input">
         <div>Quantity</div>
         <input v-model.number="quantity" step="1" type="number">
+        <div v-if="errors.quantity" class="error-msg">Quantity required as positive integer</div>
       </div>
       <div class="new-item-input">
         <div>Name</div>
         <input v-model="name" type="text">
+        <div v-if="errors.name" class="error-msg">Name required</div>
       </div>
       <div class="new-item-input">
         <div>Price</div>
         <input v-model.number="price" step=".01" type="number">
+        <div v-if="errors.price" class="error-msg">Price required in no more than two decimal places</div>
       </div>
       <div class="new-item-input">
         <div>Type</div>
@@ -65,6 +68,11 @@ export default class HelloWorld extends Vue {
   name = '';
   price = 0.01;
   imported = false;
+  errors = {
+    quantity: false,
+    name: false,
+    price: false
+  };
 
   receipt: string[] = [];
   taxAndTotal: TaxAndTotal = {
@@ -72,23 +80,48 @@ export default class HelloWorld extends Vue {
     total: 0
   };
 
+  validateNewItem() {
+    let valid = true;
+    if (!Number.isInteger(this.quantity))  {
+      this.errors.quantity = true;
+      valid = false;
+      this.quantity = Math.ceil(this.quantity);
+    } else {
+      this.errors.quantity = false; 
+    }
+
+    if (this.name.length === 0) {
+      this.errors.name = true;
+      valid = false;
+    } else {
+      this.errors.name = false;
+    }
+
+    if (this.checkDecimals(this.price) > 2) {
+      this.price = parseFloat(this.price.toFixed(2));
+      this.errors.price = true;
+      valid = false;
+    } else {
+      this.errors.price = false;
+    }
+    return valid;
+  }
+
   calculateSalesTax() {
     const requestBody = {
       items: this.items,
       print: true
     };
-    console.log(requestBody);
     axios.post('http://localhost:3000/salestax', requestBody).then(
       res => {
         this.receipt = res.data.displayReceipt;
         this.taxAndTotal = res.data.taxAndTotal;
-        console.log(res);
       }
     );
   }
 
   addNewItem() {
-    this.newItem = true;
+      this.newItem = true;
   }
 
   removeItem(index: number) {
@@ -96,21 +129,28 @@ export default class HelloWorld extends Vue {
   }
 
   saveNewItem() {
-    const item: Item = new Item();
-    item.type = this.type;
-    item.name = this.name;
-    item.quantity = this.quantity;
-    item.price = this.price;
-    item.imported = this.imported;
+    if (this.validateNewItem()) {
+      const item: Item = new Item();
+      item.type = this.type;
+      item.name = this.name;
+      item.quantity = this.quantity;
+      item.price = this.price;
+      item.imported = this.imported;
 
-    this.type = ItemType.Other;
-    this.quantity = 1;
-    this.name = '';
-    this.price = 0.01;
-    this.imported = false;
-    this.items.push(item);
+      this.type = ItemType.Other;
+      this.quantity = 1;
+      this.name = '';
+      this.price = 0.01;
+      this.imported = false;
+      this.items.push(item);
 
-    this.newItem = false;
+      this.newItem = false;
+    } 
+  }
+
+  private checkDecimals(num: number): number {
+    const numArray = num.toString().split('.');
+    return numArray[1].length;
   }
 }
 </script>
