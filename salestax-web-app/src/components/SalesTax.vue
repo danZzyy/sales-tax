@@ -1,28 +1,28 @@
 <template>
   <div id="sales-tax">
     <ul>
-      <li v-for="(item, index) in items" :key="item.name">
-        {{ item.quantity }} {{ item.name }} {{ item.price }}
-        <button @click="removeItem(index)">Remove Item</button>
+      <li v-for="(item, index) in items" :key="item.name" class="item">
+        <div class="item-details">{{ item.quantity }} {{ item.imported ? 'Imported' : '' }} {{ item.name }} {{ item.price }}</div>
+        <button class="remove-btn" @click="removeItem(index)">Remove Item</button>
       </li>
     </ul>
-    <div v-if="!newItem">
+    <div v-if="!newItem" class="action-btn">
       <button @click="addNewItem()">Add New Item</button>
     </div>
     <div v-if="newItem">
-      <div>
+      <div class="new-item-input">
         <div>Quantity</div>
         <input v-model.number="quantity" step="1" type="number">
       </div>
-      <div>
+      <div class="new-item-input">
         <div>Name</div>
         <input v-model="name" type="text">
       </div>
-      <div>
+      <div class="new-item-input">
         <div>Price</div>
         <input v-model.number="price" step=".01" type="number">
       </div>
-      <div>
+      <div class="new-item-input">
         <div>Type</div>
         <select name="" v-model="type">
           <option value="Food">Food</option>
@@ -31,7 +31,7 @@
           <option value="Other">Other</option>
         </select>
       </div>
-      <div>
+      <div class="new-item-input">
         <input type="checkbox" value="Imported" v-model="imported">Imported
       </div>
       <div>
@@ -46,17 +46,16 @@
     </div>
   </div>
 </template>
+<style scoped>
+@import 'style.css';
+</style>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import { Item, ItemType, TaxAndTotal } from '../types';
 import axios from 'axios';
 
-@Options({
-  props: {
-    msg: String
-  }
-})
+@Options({})
 export default class HelloWorld extends Vue {
   msg!: string;
   newItem = false;
@@ -115,21 +114,3 @@ export default class HelloWorld extends Vue {
   }
 }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>
