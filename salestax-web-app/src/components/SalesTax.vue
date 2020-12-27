@@ -1,8 +1,9 @@
 <template>
   <div id="sales-tax">
     <ul>
-      <li v-for="item in items" :key="item.name">
+      <li v-for="(item, index) in items" :key="item.name">
         {{ item.quantity }} {{ item.name }} {{ item.price }}
+        <button @click="removeItem(index)">Remove Item</button>
       </li>
     </ul>
     <div v-if="!newItem">
@@ -11,7 +12,7 @@
     <div v-if="newItem">
       <div>
         <div>Quantity</div>
-        <input v-model="quantity" type="number">
+        <input v-model.number="quantity" step="1" type="number">
       </div>
       <div>
         <div>Name</div>
@@ -19,7 +20,7 @@
       </div>
       <div>
         <div>Price</div>
-        <input v-model="price" type="number">
+        <input v-model.number="price" step=".01" type="number">
       </div>
       <div>
         <div>Type</div>
@@ -31,19 +32,25 @@
         </select>
       </div>
       <div>
-        <input type="checkbox" value="Imported" v-model="imported">
+        <input type="checkbox" value="Imported" v-model="imported">Imported
       </div>
       <div>
         <button @click="saveNewItem()">Save Item</button>
       </div>
     </div>
-    <button @click="getSalesTax()">Calculate Sales Tax</button>
+    <button @click="calculateSalesTax()">Calculate Sales Tax</button>
+    <div>
+      <div v-for="line in receipt" :key="line">
+        {{ line }}
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { Item, ItemType } from '../types';
+import { Item, ItemType, TaxAndTotal } from '../types';
+import axios from 'axios';
 
 @Options({
   props: {
@@ -52,20 +59,41 @@ import { Item, ItemType } from '../types';
 })
 export default class HelloWorld extends Vue {
   msg!: string;
-  newItem: boolean = false;
+  newItem = false;
   items: Item[] = [];
   type = ItemType.Other; 
-  quantity = 0;
+  quantity = 1;
   name = '';
-  price = 0.0;
+  price = 0.01;
   imported = false;
 
+  receipt: string[] = [];
+  taxAndTotal: TaxAndTotal = {
+    tax: 0,
+    total: 0
+  };
+
   calculateSalesTax() {
-    return null;
+    const requestBody = {
+      items: this.items,
+      print: true
+    };
+    console.log(requestBody);
+    axios.post('http://localhost:3000/salestax', requestBody).then(
+      res => {
+        this.receipt = res.data.displayReceipt;
+        this.taxAndTotal = res.data.taxAndTotal;
+        console.log(res);
+      }
+    );
   }
 
   addNewItem() {
     this.newItem = true;
+  }
+
+  removeItem(index: number) {
+    this.items.splice(index, 1);
   }
 
   saveNewItem() {
@@ -77,9 +105,9 @@ export default class HelloWorld extends Vue {
     item.imported = this.imported;
 
     this.type = ItemType.Other;
-    this.quantity = 0;
+    this.quantity = 1;
     this.name = '';
-    this.price = 0.0;
+    this.price = 0.01;
     this.imported = false;
     this.items.push(item);
 

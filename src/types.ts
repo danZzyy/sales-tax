@@ -21,5 +21,5 @@ export interface TaxAndTotal {
 
 export interface SalesTaxResponse {
     taxAndTotal: TaxAndTotal;
-    displayReciept?: string[];
+    displayReceipt?: string[];
 }
