@@ -12,8 +12,6 @@ export class Item {
     tax!: number;
     quantity!: number;
     imported!: boolean;
-
-    constructor() {}
 }
 
 export interface TaxAndTotal {

@@ -35,7 +35,8 @@
         </select>
       </div>
       <div class="new-item-input">
-        <input type="checkbox" value="Imported" v-model="imported">Imported
+        <div>Imported</div>
+        <input type="checkbox" value="Imported" v-model="imported">
       </div>
       <div>
         <button @click="saveNewItem()">Save Item</button>

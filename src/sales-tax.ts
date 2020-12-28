@@ -24,7 +24,6 @@ app.post('/salestax', (req, res) => {
         res.status(400);
         res.send('POST Body Required');
     } else {
-        console.log(body);
         const itemsPreTax: Item[] = body.items;
         let itemsPostTax: Item[] = [];
         itemsPreTax.forEach((item: Item) => {
@@ -40,7 +39,6 @@ app.post('/salestax', (req, res) => {
             receiptLines = receiptLines.concat(parse.formatTotal(taxAndTotal));
             resBody.displayReceipt = receiptLines;
         }
-        console.log(resBody);
         res.status(200);
         res.send(resBody);
     }
