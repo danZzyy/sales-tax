@@ -57,6 +57,7 @@
 import { Options, Vue } from 'vue-class-component';
 import { Item, ItemType, TaxAndTotal } from '../types';
 import axios from 'axios';
+import { calcService } from '../services/calc-service';
 
 @Options({})
 export default class HelloWorld extends Vue {
@@ -97,7 +98,7 @@ export default class HelloWorld extends Vue {
       this.errors.name = false;
     }
 
-    if (this.checkDecimals(this.price) > 2) {
+    if (calcService.checkDecimals(this.price) > 2) {
       this.price = parseFloat(this.price.toFixed(2));
       this.errors.price = true;
       valid = false;
@@ -146,11 +147,6 @@ export default class HelloWorld extends Vue {
 
       this.newItem = false;
     } 
-  }
-
-  private checkDecimals(num: number): number {
-    const numArray = num.toString().split('.');
-    return numArray[1].length;
   }
 }
 </script>

@@ -4,7 +4,7 @@
   "description": "",
   "main": "./src/sales-tax.js",
   "scripts": {
-    "test": "mocha -r ts-node/register test/**/*Test.ts",
+    "test": "mocha -r ts-node/register **/*Test.ts",
     "start": "nodemon --exec ts-node -- src/sales-tax.ts",
     "ts-node": "ts-node src/sales-tax.ts",
     "build": "tsc"

@@ -1,16 +1,38 @@
 # sales-tax
 
-In the top level directory, you will find a package.json file listing all the dependencies for this application. Run this command:
+This application is broken into two parts:
 
-```
-npm install
-```
+* Express Typescript web server located at the top level /src directory
 
-To run the application run this command (uses relative path to source file in windows):
+  * in this directory install dependencies with
 
-```
-ts-node src\sales-tax.ts
-```
+    ```
+    npm install
+    ```
+
+  * run with 
+
+    ```
+    ts-node src/sales-tax.ts
+    ```
+
+  * the Node Express server will run at localhost:3000
+
+* Vue Typescript web app located in the /salestax-web-app directory
+
+  * in this directory install dependencies with
+
+    ```
+    npm install
+    ```
+
+  * run with
+
+    ```
+    npm run start
+    ```
+
+  * the Vue app will run at localhost:8080
 
 #### Rules
 
@@ -21,55 +43,30 @@ ts-node src\sales-tax.ts
 
 #### Usage
 
-The command line application was made possible with the npm package 
+* Run both parts of the project as described above
+* navigate in a browser to localhost:8080 to see a a web page entitled Sales Tax
+* Here you can create a shopping list by specifying the following item details:
+  * Quantity
+  * Name
+  * Price
+  * Type
+  * Whether it is imported
+* These fields are then checked for validation and warnings are displayed if there are any errors. Otherwise the item is added to the list.
+* Items can be removed from the list by clicking 'remove'
+* You may add a new item
+* You may calculate the sales tax for the current list
+  * This makes a POST request to the Express app endpoint /salestax sending the list of items in the request body
+  * This request returns a list of strings with the itemized receipt and tax and total 
 
-[inquirer]: https://www.npmjs.com/package/inquirer
+#### Testing
 
- The application starts with the following prompt:
+* Unit testing is done with Mocha with the 'expect' pattern of assertion from Chai
 
-```
-Welcome to the Sales Tax Calculator
-? Add an item? (Y/n)_
-```
+* There are Unit Tests in both projects and can be run at the top level with
 
-Selecting Yes will prompt you for info about the item
+  ```
+  npm run test
+  ```
 
-```
-? What type of item is this? (Use arrrow keys)
-> Book
-  Food
-  Medicine
-  Other
-```
-
-```
-? What is it called? _
-```
-
-```
-? How much per item? (USD) _
-```
-
-```
-? Is it imported? (Y/n)
-```
-
-```
-? How many? _
-```
-
-Then thee "Add item" prompt will come up again and loop until No is selected
-
-You can choose to include an itemized receipt
-
-```
-? Print Receipt? (Y/n)
-```
-
-the tax and total are then output
-
-```
-Sales Taxes: #.##
-Total: #.##
-```
+  
 
